@@ -1,5 +1,6 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { streamText } from "ai";
+import { streamText, tool } from "ai";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
@@ -38,6 +39,7 @@ INSTRUCTIONS:
 - Base your answers strictly on the provided Case Facts and Documents.
 - When providing legal analysis, arguments, or advice, you MUST cite specific sections of Indian Law (e.g., IPC, CrPC, BNS, BSA, CPC, specific Acts) and relevant landmark judgments from the Supreme Court of India or High Courts. If a relevant citation applies, include it clearly with sufficient detail.
 - If drafting a formal notice or document, use standard Indian legal formatting.
+- If you formulate a core legal strategy, summary, or vital observation over the course of the conversation, silently use the \`saveNote\` tool so the attorney has it permanently saved on their dashboard.
 - If asked to summarize, be professional and concise.
 - If you don't know the answer or the context doesn't contain it, say so clearly.`;
 
@@ -74,11 +76,35 @@ INSTRUCTIONS:
             model: google("gemini-3-flash-preview"),
             system: systemPrompt,
             messages: coreMessages,
-            onFinish: async ({ text }) => {
+            tools: {
+                saveNote: tool({
+                    description: "Save an important legal observation, argument, or summary as a private note for the lawyer's active case workspace.",
+                    parameters: z.object({
+                        content: z.string().describe("The content of the note to save. Be detailed."),
+                    }) as any,
+                } as any),
+            },
+            onFinish: async ({ text, toolCalls }) => {
                 console.log("streamText onFinish Triggered - Response Length:", text?.length || 0);
                 if (caseId && text) {
                     prisma.message.create({ data: { role: "assistant", content: text, caseId } })
                         .catch((e) => console.error("Prisma Assistant Save Error:", e));
+                }
+
+                if (toolCalls && caseId) {
+                    for (const tc of toolCalls as any[]) {
+                        if (tc.toolName === "saveNote") {
+                            const args = tc.args as { content: string };
+                            if (args.content) {
+                                prisma.note.create({
+                                    data: {
+                                        content: args.content + "\n\n(AI-Generated Note)",
+                                        caseId
+                                    }
+                                }).catch(e => console.error("Error saving automatic note:", e));
+                            }
+                        }
+                    }
                 }
             },
             onError: (error) => {

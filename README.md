@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # LexIndia 🇮🇳⚖️
 
 LexIndia is a modern, full-stack Legal Case Management System designed to help legal professionals, advocates, and law firms efficiently manage their practice. Built with the latest web technologies, it offers a fast, secure, and user-friendly interface to manage clients, cases, documents, and case notes.
@@ -108,3 +109,6 @@ Contributions, issues, and feature requests are welcome! Feel free to check the 
 ## 📄 License
 
 This project is proprietary and intended for internal use unless specified otherwise.
+=======
+# LexIndia
+>>>>>>> 00101e72d2d59aee6ff0a965a2a1f17390fdaac4

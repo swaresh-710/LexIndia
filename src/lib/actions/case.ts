@@ -116,3 +116,21 @@ export async function getDashboardStats() {
         return { totalClients: 0, openCases: 0, aiDrafts: 0, totalCases: 0 };
     }
 }
+
+export async function updateCaseFacts(caseId: string, facts: string) {
+    const session = await auth();
+    if (!session?.user?.id) throw new Error("Unauthorized");
+
+    try {
+        await prisma.case.update({
+            where: { id: caseId, userId: session.user.id },
+            data: { facts }
+        });
+
+        revalidatePath(`/cases/${caseId}`);
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating facts:", error);
+        return { success: false, error: "Failed to update case facts." };
+    }
+}
