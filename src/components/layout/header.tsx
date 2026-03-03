@@ -1,17 +1,45 @@
-import { Bell, Search, User } from "lucide-react";
-import { Input } from "@/components/ui/input";
+"use client";
 
-export function Header() {
+import { Bell, Search, User, Menu } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+interface HeaderProps {
+    onMenuClick?: () => void;
+}
+
+export function Header({ onMenuClick }: HeaderProps) {
+    const [searchQuery, setSearchQuery] = useState("");
+    const router = useRouter();
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+        }
+    };
+
     return (
-        <header className="flex h-14 items-center gap-4 border-b bg-background px-6">
+        <header className="flex h-14 items-center gap-4 border-b bg-background px-4 md:px-6">
+            <button
+                className="md:hidden p-2 -ml-2 text-muted-foreground hover:bg-muted rounded-md"
+                onClick={onMenuClick}
+            >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+            </button>
+
             <div className="w-full flex-1">
-                <form>
+                <form onSubmit={handleSearch}>
                     <div className="relative">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                             type="search"
                             placeholder="Search clients or cases..."
                             className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
                 </form>

@@ -2,8 +2,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Users, Folder, FileText, Activity } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { getDashboardStats, getCases } from "@/lib/actions/case";
+import { QuickDraftDialog } from "@/components/dashboard/QuickDraftDialog";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+    const { totalClients, openCases, aiDrafts } = await getDashboardStats();
+    const cases = await getCases();
+
     return (
         <div className="flex flex-col gap-6 w-full">
             <div className="flex items-center justify-between">
@@ -21,12 +26,12 @@ export default function DashboardPage() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Active Clients</CardTitle>
+                        <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">12</div>
-                        <p className="text-xs text-muted-foreground">+2 from last month</p>
+                        <div className="text-2xl font-bold">{totalClients}</div>
+                        <p className="text-xs text-muted-foreground">Clients in your practice</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -35,8 +40,8 @@ export default function DashboardPage() {
                         <Folder className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">24</div>
-                        <p className="text-xs text-muted-foreground">+5 active this week</p>
+                        <div className="text-2xl font-bold">{openCases}</div>
+                        <p className="text-xs text-muted-foreground">Active matters</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -45,18 +50,18 @@ export default function DashboardPage() {
                         <FileText className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">89</div>
-                        <p className="text-xs text-muted-foreground">Across all contexts</p>
+                        <div className="text-2xl font-bold">{aiDrafts}</div>
+                        <p className="text-xs text-muted-foreground">Across all case contexts</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
+                        <CardTitle className="text-sm font-medium">Total Cases</CardTitle>
                         <Activity className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">14</div>
-                        <p className="text-xs text-muted-foreground">Actions today</p>
+                        <div className="text-2xl font-bold">{openCases}</div>
+                        <p className="text-xs text-muted-foreground">Open right now</p>
                     </CardContent>
                 </Card>
             </div>
@@ -68,29 +73,22 @@ export default function DashboardPage() {
                         <CardDescription>Your recently accessed case workspaces.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-4">
-                                <div className="w-9 h-9 rounded bg-primary/10 flex items-center justify-center text-primary font-bold">
-                                    S
-                                </div>
-                                <div className="flex-1 space-y-1">
-                                    <p className="text-sm font-medium leading-none">State vs. Raj Kumar</p>
-                                    <p className="text-sm text-muted-foreground">Criminal - Bail Application Pending</p>
-                                </div>
-                                <div className="text-sm font-medium">Updated 2h ago</div>
+                        {openCases === 0 ? (
+                            <div className="flex flex-col items-center justify-center p-8 text-center border rounded-lg border-dashed">
+                                <Folder className="h-8 w-8 text-muted-foreground mb-4 opacity-50" />
+                                <h3 className="text-sm font-medium">No cases yet</h3>
+                                <p className="text-xs text-muted-foreground mt-1">Create your first case to get started.</p>
+                                <Link href="/cases/new" className="mt-4">
+                                    <Button variant="outline" size="sm">New Case</Button>
+                                </Link>
                             </div>
-
-                            <div className="flex items-center gap-4">
-                                <div className="w-9 h-9 rounded bg-primary/10 flex items-center justify-center text-primary font-bold">
-                                    S
-                                </div>
-                                <div className="flex-1 space-y-1">
-                                    <p className="text-sm font-medium leading-none">Sharma Property Dispute</p>
-                                    <p className="text-sm text-muted-foreground">Civil - District Court</p>
-                                </div>
-                                <div className="text-sm font-medium">Updated 5h ago</div>
+                        ) : (
+                            <div className="flex items-center justify-center p-6 text-sm text-muted-foreground">
+                                <Link href="/cases">
+                                    <Button variant="link">View all {openCases} open cases →</Button>
+                                </Link>
                             </div>
-                        </div>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -100,9 +98,21 @@ export default function DashboardPage() {
                         <CardDescription>Jump straight into creating a new document.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <Button variant="outline" className="w-full justify-start">Draft Legal Notice</Button>
-                        <Button variant="outline" className="w-full justify-start">Draft Bail Application</Button>
-                        <Button variant="outline" className="w-full justify-start">Draft Written Statement</Button>
+                        <QuickDraftDialog
+                            cases={cases}
+                            triggerText="Draft Legal Notice"
+                            defaultDraftType="Legal Notice"
+                        />
+                        <QuickDraftDialog
+                            cases={cases}
+                            triggerText="Draft Bail Application"
+                            defaultDraftType="Bail Application"
+                        />
+                        <QuickDraftDialog
+                            cases={cases}
+                            triggerText="Draft Written Statement"
+                            defaultDraftType="Written Statement"
+                        />
                     </CardContent>
                 </Card>
             </div>
