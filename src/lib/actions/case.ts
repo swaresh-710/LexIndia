@@ -35,6 +35,9 @@ export async function getCase(id: string) {
             where: { id, userId: session.user.id },
             include: {
                 client: true,
+                notes: {
+                    orderBy: { createdAt: "asc" }
+                },
                 messages: {
                     orderBy: { createdAt: "asc" }
                 },
@@ -95,20 +98,21 @@ export async function createCase(formData: FormData): Promise<void> {
 
 export async function getDashboardStats() {
     const session = await auth();
-    if (!session?.user?.id) return { totalClients: 0, openCases: 0, aiDrafts: 0 };
+    if (!session?.user?.id) return { totalClients: 0, openCases: 0, aiDrafts: 0, totalCases: 0 };
 
     const userId = session.user.id;
 
     try {
-        const [totalClients, openCases, aiDrafts] = await Promise.all([
+        const [totalClients, openCases, aiDrafts, totalCases] = await Promise.all([
             prisma.client.count({ where: { userId } }),
             prisma.case.count({ where: { userId, status: "OPEN" } }),
             prisma.document.count({ where: { case: { userId }, type: "AI_GENERATED" } }),
+            prisma.case.count({ where: { userId } }),
         ]);
 
-        return { totalClients, openCases, aiDrafts };
+        return { totalClients, openCases, aiDrafts, totalCases };
     } catch (error) {
         console.error("Error fetching dashboard stats:", error);
-        return { totalClients: 0, openCases: 0, aiDrafts: 0 };
+        return { totalClients: 0, openCases: 0, aiDrafts: 0, totalCases: 0 };
     }
 }

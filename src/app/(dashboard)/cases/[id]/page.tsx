@@ -7,6 +7,10 @@ import { redirect } from "next/navigation";
 import { DocumentUploadButton } from "@/components/case/DocumentUploadButton";
 import { DocumentDownloadButton } from "@/components/case/DocumentDownloadButton";
 import { ChatInterface } from "@/components/case/ChatInterface";
+import { NotesSection } from "@/components/case/NotesSection";
+import { CaseFactsEditor } from "@/components/case/CaseFactsEditor";
+
+export const dynamic = "force-dynamic";
 
 export default async function CaseDetailsPage({ params }: { params: { id: string } }) {
     const caseDetails = await getCase(params.id);
@@ -54,7 +58,10 @@ export default async function CaseDetailsPage({ params }: { params: { id: string
                                 </div>
                             </div>
                             <div>
-                                <p className="text-sm text-muted-foreground font-medium mb-1">Brief Facts</p>
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-sm text-muted-foreground font-medium">Brief Facts</p>
+                                    <CaseFactsEditor caseId={caseDetails.id} initialFacts={caseDetails.facts} />
+                                </div>
                                 <div className="p-4 bg-muted/50 rounded-md text-sm whitespace-pre-wrap">
                                     {caseDetails.facts || "No facts recorded for this case."}
                                 </div>
@@ -126,6 +133,10 @@ export default async function CaseDetailsPage({ params }: { params: { id: string
                                 parts: [{ type: "text" as const, text: m.content }]
                             })) || []}
                         />
+                    </div>
+
+                    <div className="pt-2">
+                        <NotesSection caseId={caseDetails.id} initialNotes={caseDetails.notes || []} />
                     </div>
                 </div>
 

@@ -43,6 +43,7 @@ CRITICAL FORMATTING INSTRUCTIONS (STRICT ADHERENCE REQUIRED):
 6. **Tone:** Professional, formal legal English typical of Indian courts. Avoid colloquialisms.
 7. **Prayer/Relief:** Conclude with a clear "PRAYER" or "RELIEF SOUGHT" section stating exactly what the applicant/plaintiff is asking the court to do.
 8. **Verification:** Add a standard Verification block at the end (e.g., "Verified at [City] on this [Date] day of [Month, Year] that the contents of paras 1 to X are true to my knowledge...").
+9. **Statutory & Precedent Citations:** Incorporate specific statutory provisions (IPC, BNS, CPC, CrPC, etc.) and citations to established court precedence where applicable in the drafted document to strengthen the legal standing.
 
 Do not include any conversational filler. Start the legal formatted document immediately. Format using Markdown.`;
 

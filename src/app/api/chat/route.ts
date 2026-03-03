@@ -36,6 +36,7 @@ ${documentContext}
 
 INSTRUCTIONS:
 - Base your answers strictly on the provided Case Facts and Documents.
+- When providing legal analysis, arguments, or advice, you MUST cite specific sections of Indian Law (e.g., IPC, CrPC, BNS, BSA, CPC, specific Acts) and relevant landmark judgments from the Supreme Court of India or High Courts. If a relevant citation applies, include it clearly with sufficient detail.
 - If drafting a formal notice or document, use standard Indian legal formatting.
 - If asked to summarize, be professional and concise.
 - If you don't know the answer or the context doesn't contain it, say so clearly.`;

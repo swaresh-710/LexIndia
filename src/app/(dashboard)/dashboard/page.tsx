@@ -6,7 +6,7 @@ import { getDashboardStats, getCases } from "@/lib/actions/case";
 import { QuickDraftDialog } from "@/components/dashboard/QuickDraftDialog";
 
 export default async function DashboardPage() {
-    const { totalClients, openCases, aiDrafts } = await getDashboardStats();
+    const { totalClients, openCases, aiDrafts, totalCases } = await getDashboardStats();
     const cases = await getCases();
 
     return (
@@ -60,8 +60,8 @@ export default async function DashboardPage() {
                         <Activity className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{openCases}</div>
-                        <p className="text-xs text-muted-foreground">Open right now</p>
+                        <div className="text-2xl font-bold">{totalCases}</div>
+                        <p className="text-xs text-muted-foreground">Lifetime cases in system</p>
                     </CardContent>
                 </Card>
             </div>
